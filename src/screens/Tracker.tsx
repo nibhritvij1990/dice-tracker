@@ -334,7 +334,7 @@ const Tracker: React.FC = () => {
                     <button
                       key={n}
                       onClick={() => addRoll(n, 'manual')}
-                      className="h-10 rounded-lg border border-white/15 bg-white/10 hover:bg-white/15 text-sm shadow-2xl bg-gradient-to-br from-[#2E1371] to-[#21232F]"
+                      className="h-14 rounded-lg border border-white/15 bg-white/10 hover:bg-white/15 text-md shadow-2xl bg-gradient-to-br from-[#2E1371] to-[#21232F]"
                       style={{ boxShadow: '-1px -1px 0px 0px rgb(7, 251, 211), 0px -1px 0px 0px rgb(7, 251, 211)' }}
                     >
                       {n}

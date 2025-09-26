@@ -230,7 +230,7 @@ const Home: React.FC = () => {
           <div className="absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[460px] sm:h-[560px] md:h-[600px]" style={{ 
             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
             background: 'rgba(255, 255, 255, 0.2)',
-            filter: 'drop-shadow(0 8px 32px rgba(0, 0, 0, 0.15)) blur(2px)',
+            filter: 'drop-shadow(0 2px 2px rgba(200, 200, 200, 0.5)) blur(2px)',
             aspectRatio: '0.86/1',
            }}/>
           <div className="absolute z-[2] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
