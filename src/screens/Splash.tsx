@@ -42,9 +42,9 @@ const Splash: React.FC = () => {
       >
         <div className="relative w-full h-full" ref={wrapperRef}>
           <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] rounded-xl overflow-hidden">
-            <Iridescence color={[207, 153, 254]} />
+            <Iridescence color={[100, 200, 255]} /> 
           </div>
-          <LiquidGlassCard className='absolute top-[44%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[240px] h-[240px] flex flex-col justify-center items-center text-white'>
+          <LiquidGlassCard distortion={0.8} thickness={1} className='absolute top-[44%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[240px] h-[240px] flex flex-col justify-center items-center text-white'>
           <div className='absolute inset-0 flex flex-col gap-3 items-center justify-center'>
           <svg viewBox="0 0 100 100" className="w-32 h-32 box-shadow-lg" style={{ filter: 'drop-shadow(0 0 0 #000) inset 0 -4px 8px #cf9effaa' }}>
               <defs>

@@ -149,9 +149,9 @@ const Home: React.FC = () => {
     };
 
     return (
-      <div className="absolute left-[1.25rem] right-[1.25rem] top-[76px] bottom-[84px] flex flex-col gap-5 overflow-auto">
+      <div className="absolute left-0 right-0 top-[76px] bottom-[84px] flex flex-col gap-5 overflow-auto">
         {/* Top controls */}
-        <div className="w-full p-4 rounded-2xl border border-white/10 bg-white/5">
+        <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mx-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-between gap-2 w-full">
               <div className="text-sm font-medium">Players</div>
@@ -170,13 +170,13 @@ const Home: React.FC = () => {
         </div>
 
         {/* Board container */}
-        <div className="w-full p-4 rounded-2xl relative overflow-hidden">
+        <div className="w-full p-4 relative overflow-hidden">
           <CatanBoard board={board} />
         </div>
 
         {/* Actions */}
           <button onClick={onGenerate} aria-label="Generate Map"
-            className="h-10 w-full rounded-lg border border-white/20 bg-gradient-to-br from-[#B6116B] to-[#3B1578] flex items-center justify-center text-sm"
+            className="h-10 mx-5 rounded-lg border border-white/20 bg-gradient-to-br from-[#B6116B] to-[#3B1578] flex items-center justify-center text-sm"
             style={{ boxShadow: '-1px -1px 0px 0px rgb(255, 83, 192), 0px -1px 0px 0px rgb(255, 83, 192)' }}>
             Generate Map
           </button>
@@ -249,20 +249,32 @@ const Home: React.FC = () => {
     }, [board, containerWidth]);
 
     return (
-      <div className="w-full h-full flex items-start justify-start pt-2 select-none" id="catan-map-container" ref={wrapperRef}>
+      <div className="w-full h-full flex items-start justify-center pt-2 select-none" id="catan-map-container" ref={wrapperRef}>
         <div className="relative" style={{ width: containerWidth, height: containerHeight + 45, zoom: `${containerZoom}` }}>
           {/* Water background as a large hex behind tiles */}
-          <LiquidGlassCard
+          <Iridescence color={[100, 200, 255]} className='absolute inset-0' style={{ transform: 'rotate(90deg) scale(1.5)' }} />
+          <LiquidGlassCard distortion={1} thickness={1} 
+            className="absolute"
+            style={{
+              left: '-2rem',
+              top: '-2rem',
+              zIndex: '0',
+              height: 'calc(100% + 4rem)',
+              width: 'calc(100% + 4rem)',
+              borderRadius: '0rem',
+            }}
+          >
+          <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             style={{
-              width: containerWidth + 36,
-              height: containerHeight + 45,
+              width: containerWidth + 24,
+              height: containerHeight + 48,
               // Pointy (vertical) big board water background
               clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
               zIndex: 0,
-            }}
-          >
-            <Iridescence color={[7, 151, 211]} className='absolute inset-0' style={{ transform: 'rotate(90deg) scale(1.5)' }} />
+              background: 'rgba(255, 255, 255, 0.2)',
+              filter: 'drop-shadow(0 8px 32px rgba(0, 0, 0, 0.15)) blur(2px)',
+            }} />
           </LiquidGlassCard>
  
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: containerWidth, height: containerHeight }}>

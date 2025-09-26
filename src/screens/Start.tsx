@@ -160,7 +160,7 @@ const Start: React.FC = () => {
           </div>
           
           <div className="absolute left-1/2 -translate-x-1/2 w-[240px] h-[64px]" style={{ top: 'calc(44% + 152px)' }}>
-            <LiquidGlassCard className="w-full h-full animate-[rainbow_6s_linear_infinite]" style={{ borderRadius: '8rem', background: 'conic-gradient(from var(--angle), #CF9EFF, #A071FF, #CF9EFF, transparent, transparent, transparent, transparent)' }}>
+            <LiquidGlassCard distortion={0.75} thickness={1} className="w-full h-full animate-[rainbow_6s_linear_infinite]" style={{ borderRadius: '8rem', background: 'conic-gradient(from var(--angle), #CF9EFF, #A071FF, #CF9EFF, transparent, transparent, transparent, transparent)' }}>
               <Link to="/profile" className="w-full h-full py-4 px-8 flex items-center justify-center no-underline" style={{ borderRadius: '8rem', fontWeight: 'bold' }}>Get Started</Link>
             </LiquidGlassCard>
           </div>
