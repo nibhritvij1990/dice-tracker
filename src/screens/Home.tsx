@@ -12,16 +12,7 @@ import Iridescence from '../components/Iridescence.tsx';
 
 
 const Home: React.FC = () => {
-  const devicePresets = {
-    'iphone-se': { label: 'iPhone SE (2/3)', width: 320, height: 568 },
-    'android-360x800': { label: 'Android (360×800)', width: 360, height: 800 },
-    'iphone-12-14': { label: 'iPhone 12/13/14', width: 390, height: 844 },
-    'iphone-15-pro-max': { label: 'iPhone 15 Pro Max', width: 430, height: 932 },
-  } as const;
-
-  type DevicePresetKey = keyof typeof devicePresets;
-  const [presetId, setPresetId] = useState<DevicePresetKey>('iphone-12-14');
-  const preset = devicePresets[presetId];
+  // Device presets removed – full-viewport rendering
 
   type Terrain = 'forest' | 'pasture' | 'fields' | 'hills' | 'mountains' | 'desert';
   type Tile = { terrain: Terrain; number: number | null };
@@ -256,11 +247,11 @@ const Home: React.FC = () => {
           <LiquidGlassCard distortion={1} thickness={1} 
             className="absolute"
             style={{
-              left: '-2rem',
+              left: '-20rem',
               top: '-2rem',
               zIndex: '0',
               height: 'calc(100% + 4rem)',
-              width: 'calc(100% + 4rem)',
+              width: 'calc(100% + 40rem)',
               borderRadius: '0rem',
             }}
           >
@@ -339,24 +330,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className="min-h-dvh w-full bg-neutral-200 flex flex-col items-center justify-center gap-4 p-4">
-      <div className="flex items-center gap-2 text-white bg-neutral-800 rounded-md px-2">
-        <label htmlFor="device" className="text-sm">Device</label>
-        <select
-          id="device"
-          value={presetId}
-          onChange={(e) => setPresetId(e.target.value as DevicePresetKey)}
-          className="bg-neutral-800 border border-white/10 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-white/20"
-        >
-          {Object.entries(devicePresets).map(([id, p]) => (
-            <option key={id} value={id}>
-              {p.label} ({p.width}×{p.height})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ width: preset.width, height: preset.height }} className="rounded-3xl shadow-2xl border border-white/10 overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B] text-white relative">
+    <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B] text-white relative">
         <div className="absolute w-[300px] h-[300px] left-[-132px] top-[178px]" style={{ background: 'rgba(96, 255, 231, 0.4)', filter: 'blur(100px)' }} />
         <div className="absolute w-[300px] h-[300px] right-[-147px] top-[375px]" style={{ background: 'rgba(255, 83, 192, 0.4)', filter: 'blur(100px)' }} />
         
@@ -441,7 +415,6 @@ const Home: React.FC = () => {
 
 
         </div>
-      </div>
     </div>
   );
 };

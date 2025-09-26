@@ -5,19 +5,12 @@ import LiquidGlassCard from '../components/LiquidGlassCard';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const Start: React.FC = () => {
-  const devicePresets = {
-    'iphone-se': { label: 'iPhone SE (2/3)', width: 320, height: 568 },
-    'android-360x800': { label: 'Android (360×800)', width: 360, height: 800 },
-    'iphone-12-14': { label: 'iPhone 12/13/14', width: 390, height: 844 },
-    'iphone-15-pro-max': { label: 'iPhone 15 Pro Max', width: 430, height: 932 },
-  } as const;
-
-  type DevicePresetKey = keyof typeof devicePresets;
-  const [presetId, setPresetId] = useState<DevicePresetKey>('iphone-12-14');
-  const preset = devicePresets[presetId];
+  // device presets removed – full-viewport rendering
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
   const [impactAnchor, setImpactAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [wrapperHeight, setWrapperHeight] = useState<number>(0);
+  const [targetHeight, setTargetHeight] = useState<number>(0);
 
   useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
@@ -30,9 +23,12 @@ const Start: React.FC = () => {
       raf = requestAnimationFrame(() => {
       const wr = wrapper.getBoundingClientRect();
       const tr = target.getBoundingClientRect();
-      const x = tr.left + tr.width / 2 - wr.left;
-      const y = tr.top - wr.top; // top edge of target box
+      const x = Math.round(tr.left + tr.width / 2 - wr.left);
+      // Calculate 50% of viewport height in pixels as an integer
+      const y = Math.round(window.innerHeight * 1); // top edge of target box
       setImpactAnchor({ x, y });
+      setWrapperHeight(wr.height);
+      setTargetHeight(tr.height);
       });
     };
 
@@ -40,37 +36,19 @@ const Start: React.FC = () => {
     ro.observe(wrapper);
     ro.observe(target);
     window.addEventListener('scroll', recalc, { passive: true });
+    window.addEventListener('resize', recalc);
     recalc();
     return () => {
       ro.disconnect();
       window.removeEventListener('scroll', recalc);
+      window.removeEventListener('resize', recalc);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [presetId]);
+  }, []);
 
   return (
-    <div className="min-h-dvh w-full bg-neutral-200 flex flex-col items-center justify-center gap-4 p-4">
-      <div className="flex items-center gap-2 text-white bg-neutral-800 rounded-md px-2">
-        <label htmlFor="device" className="text-sm">Device</label>
-        <select
-          id="device"
-          value={presetId}
-          onChange={(e) => setPresetId(e.target.value as DevicePresetKey)}
-          className="bg-neutral-800 border border-white/10 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-white/20"
-        >
-          {Object.entries(devicePresets).map(([id, p]) => (
-            <option key={id} value={id}>
-              {p.label} ({p.width}×{p.height})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div
-        style={{ width: preset.width, height: preset.height }}
-        className="rounded-3xl shadow-2xl border border-white/10 overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B]"
-      >
-        <div className="relative w-full h-full" ref={wrapperRef}>
+    <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B]">
+        <div className="absolute inset-0" ref={wrapperRef}>
           {/* Laser background */}
           <div className="absolute inset-0">
             {impactAnchor && (
@@ -78,8 +56,8 @@ const Start: React.FC = () => {
               color="#CF9EFF"
               horizontalBeamOffset={0.0}
               verticalBeamOffset={0.0}
-              verticalSizing={4}
-              horizontalSizing={3.2}
+              verticalSizing={40}
+              horizontalSizing={32}
               flowSpeed={0.35}
               flowStrength={0.5}
               decay={1.1}
@@ -95,7 +73,7 @@ const Start: React.FC = () => {
               baseFlatten={1}
               impactAnchorPx={impactAnchor}
               coreThicknessPx={80}
-              coreHeightPx={500}
+              coreHeightPx={Math.max(wrapperHeight, Math.round(impactAnchor.y + (targetHeight * 0.6)))}
               
             />)}
           </div>
@@ -166,7 +144,6 @@ const Start: React.FC = () => {
           </div>
           <GoogleSignInButton className="w-[64px] h-[64px] bg-red rounded-full absolute left-1/2 -translate-x-1/2" style={{ top: 'calc(44% + 152px + 100px)' }} />
         </div>
-      </div>
     </div>
   );
 };

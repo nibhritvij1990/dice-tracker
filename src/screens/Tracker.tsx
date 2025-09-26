@@ -3,17 +3,7 @@ import { Link } from 'react-router-dom';
 import LiquidGlassCard from '../components/LiquidGlassCard';
 
 const Tracker: React.FC = () => {
-  const devicePresets = {
-    'iphone-se': { label: 'iPhone SE (2/3)', width: 320, height: 568 },
-    'android-360x800': { label: 'Android (360×800)', width: 360, height: 800 },
-    'iphone-12-14': { label: 'iPhone 12/13/14', width: 390, height: 844 },
-    'iphone-15-pro-max': { label: 'iPhone 15 Pro Max', width: 430, height: 932 },
-  } as const;
-
-  type DevicePresetKey = keyof typeof devicePresets;
-  const [presetId, setPresetId] = useState<DevicePresetKey>('iphone-12-14');
-  const preset = devicePresets[presetId];
-  // removed unused impactAnchor and measurement refs
+  // removed device presets – full-viewport rendering
 
   type RollSource = 'virtual' | 'manual';
   interface DiceRollEntry {
@@ -106,24 +96,7 @@ const Tracker: React.FC = () => {
   };
 
   return (
-    <div className="min-h-dvh w-full bg-neutral-200 flex flex-col items-center justify-center gap-4 p-4">
-      <div className="flex items-center gap-2 text-white bg-neutral-800 rounded-md px-2">
-        <label htmlFor="device" className="text-sm">Device</label>
-        <select
-          id="device"
-          value={presetId}
-          onChange={(e) => setPresetId(e.target.value as DevicePresetKey)}
-          className="bg-neutral-800 border border-white/10 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-white/20"
-        >
-          {Object.entries(devicePresets).map(([id, p]) => (
-            <option key={id} value={id}>
-              {p.label} ({p.width}×{p.height})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ width: preset.width, height: preset.height }} className="rounded-3xl shadow-2xl border border-white/10 overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B] text-white relative">
+    <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B] text-white relative">
         <div className="absolute w-[300px] h-[300px] left-[-132px] top-[178px]" style={{ background: 'rgba(96, 255, 231, 0.4)', filter: 'blur(100px)' }} />
         <div className="absolute w-[300px] h-[300px] right-[-147px] top-[375px]" style={{ background: 'rgba(255, 83, 192, 0.4)', filter: 'blur(100px)' }} />
         
@@ -183,7 +156,7 @@ const Tracker: React.FC = () => {
                     { v: dieA },
                     { v: dieB },
                   ].map((d, idx) => (
-                    <div key={idx} className="w-12 h-12 sm:w-18 sm:h-18 rounded-xl bg-white text-black flex items-center justify-center text-xl sm:text-3xl font-bold shadow-[inset_0_0_0_1px_rgba(0,0,0,0.12)]" aria-label={`Die ${idx + 1}: ${d.v}`}>
+                    <div key={idx} className="w-18 h-18 sm:w-18 sm:h-18 rounded-xl bg-white text-black flex items-center justify-center text-xl sm:text-3xl font-bold shadow-[inset_0_0_0_1px_rgba(0,0,0,0.12)]" aria-label={`Die ${idx + 1}: ${d.v}`}>
                       {d.v}
                     </div>
                   ))}
@@ -341,7 +314,6 @@ const Tracker: React.FC = () => {
 
         </div>
       </div>
-    </div>
   );
 };
 
