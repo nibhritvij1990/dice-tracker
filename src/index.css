@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Laser Flow animation inspired by React Bits */
+.laser-flow::before,
+.laser-flow::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.35) 10%, transparent 20%);
+  animation: laser-spin 6s linear infinite;
+}
+.laser-flow::after {
+  animation-direction: reverse;
+  opacity: 0.6;
+}
+.laser-flow > * {
+  position: relative;
+}
+@keyframes laser-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animated gradient text utility */
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-x 3s ease infinite;
+}
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Rainbow border animation (conic) */
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0turn;
+}
+@keyframes rainbow {
+  100% { --angle: 1turn; }
+}
