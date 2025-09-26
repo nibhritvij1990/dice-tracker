@@ -23,9 +23,8 @@ const Start: React.FC = () => {
       raf = requestAnimationFrame(() => {
       const wr = wrapper.getBoundingClientRect();
       const tr = target.getBoundingClientRect();
-      const x = Math.round(tr.left + tr.width / 2 - wr.left);
-      // Calculate 50% of viewport height in pixels as an integer
-      const y = Math.round(window.innerHeight * 1); // top edge of target box
+      const x = Math.round(2*(tr.left + tr.width / 2 - wr.left));
+      const y = Math.round(2*(tr.top - wr.top)); // top edge of target box
       setImpactAnchor({ x, y });
       setWrapperHeight(wr.height);
       setTargetHeight(tr.height);
@@ -56,24 +55,24 @@ const Start: React.FC = () => {
               color="#CF9EFF"
               horizontalBeamOffset={0.0}
               verticalBeamOffset={0.0}
-              verticalSizing={40}
-              horizontalSizing={32}
-              flowSpeed={0.35}
-              flowStrength={0.5}
-              decay={1.1}
-              falloffStart={1.25}
+              verticalSizing={16}
+              horizontalSizing={2.5}
+              flowSpeed={0.25}
+              flowStrength={1}
+              decay={2}
+              falloffStart={10}
               fogFallSpeed={1}
               fogIntensity={0.5}
               fogScale={0.3}
               wispSpeed={20.0}
-              wispIntensity={15.0}
-              wispDensity={2}
+              wispIntensity={51.0}
+              wispDensity={4}
               mouseTiltStrength={0.01}
               mouseSmoothTime={0.0}
-              baseFlatten={1}
+              baseFlatten={0.1}
               impactAnchorPx={impactAnchor}
-              coreThicknessPx={80}
-              coreHeightPx={Math.max(wrapperHeight, Math.round(impactAnchor.y + (targetHeight * 0.6)))}
+              coreThicknessPx={100}
+              coreHeightPx={Math.max(window.innerHeight)}
               
             />)}
           </div>
