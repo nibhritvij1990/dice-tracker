@@ -42,7 +42,7 @@ const Start: React.FC = () => {
   }, []);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B]">
+    <div className="h-[100dvh] w-[100dvw] overflow-hidden bg-gradient-to-br from-[#2E1371] to-[#130B2B]">
         <div className="absolute inset-0" ref={wrapperRef}>
           {/* Laser background */}
           <div className="absolute inset-0">
@@ -134,7 +134,7 @@ const Start: React.FC = () => {
           
           <div className="absolute left-1/2 -translate-x-1/2 w-[240px] h-[64px]" style={{ top: 'calc(44% + 152px)' }}>
             <LiquidGlassCard distortion={0.75} thickness={1} className="w-full h-full animate-[rainbow_6s_linear_infinite]" style={{ borderRadius: '8rem', background: 'conic-gradient(from var(--angle), #CF9EFF, #A071FF, #CF9EFF, transparent, transparent, transparent, transparent)' }}>
-              <Link to="/profile" className="w-full h-full py-4 px-8 flex items-center justify-center no-underline" style={{ borderRadius: '8rem', fontWeight: 'bold' }}>Get Started</Link>
+              <Link to="/home" className="w-full h-full py-4 px-8 flex items-center justify-center no-underline" style={{ borderRadius: '8rem', fontWeight: 'bold' }}>Get Started</Link>
             </LiquidGlassCard>
           </div>
           <GoogleSignInButton className="w-[64px] h-[64px] bg-red rounded-full absolute left-1/2 -translate-x-1/2" style={{ top: 'calc(44% + 152px + 100px)' }} />
