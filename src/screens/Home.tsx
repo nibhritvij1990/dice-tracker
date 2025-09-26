@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import LiquidGlassCard from '../components/LiquidGlassCard';
 import desertPng from '../assets/images/desert.png';
 import brickPng from '../assets/images/brick.png';
@@ -16,6 +16,64 @@ const Home: React.FC = () => {
 
   type Terrain = 'forest' | 'pasture' | 'fields' | 'hills' | 'mountains' | 'desert';
   type Tile = { terrain: Terrain; number: number | null };
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [gamesVersion, setGamesVersion] = useState(0);
+  type RollSource = 'virtual' | 'manual';
+  interface DiceRollEntry { id: string; total: number; dice?: [number, number]; source: RollSource; ts: number }
+  interface GameMeta { id: string; name: string; createdAt: number; updatedAt: number }
+  interface GameData { rolls: DiceRollEntry[] }
+  const storage = {
+    getGames(): GameMeta[] { try { return JSON.parse(localStorage.getItem('dice_tracker_games') || '[]') as GameMeta[]; } catch { return []; } },
+    saveGames(list: GameMeta[]) { localStorage.setItem('dice_tracker_games', JSON.stringify(list)); },
+    getCurrentId(): string | null { return localStorage.getItem('dice_tracker_current_game_id'); },
+    setCurrentId(id: string) { localStorage.setItem('dice_tracker_current_game_id', id); },
+    dataKey(id: string) { return `dice_tracker_game_${id}`; },
+    getData(id: string): GameData { try { return JSON.parse(localStorage.getItem(this.dataKey(id)) || '{"rolls":[]}') as GameData; } catch { return { rolls: [] }; } },
+    saveData(id: string, data: GameData) { localStorage.setItem(this.dataKey(id), JSON.stringify(data)); },
+    createGame(name: string): GameMeta {
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const now = Date.now();
+      const meta: GameMeta = { id, name, createdAt: now, updatedAt: now };
+      const list = this.getGames();
+      list.unshift(meta);
+      this.saveGames(list.slice(0, 50));
+      this.saveData(id, { rolls: [] });
+      this.setCurrentId(id);
+      return meta;
+    },
+    touchGame(id: string) { const list = this.getGames(); const i = list.findIndex(g=>g.id===id); if (i>=0){ list[i].updatedAt = Date.now(); this.saveGames(list);} },
+    renameGame(id: string, name: string) { const list = this.getGames(); const i = list.findIndex(g=>g.id===id); if (i>=0){ list[i].name = name; this.saveGames(list);} },
+    deleteGame(id: string) {
+      const list = this.getGames();
+      const nextList = list.filter(g => g.id !== id);
+      this.saveGames(nextList);
+      localStorage.removeItem(this.dataKey(id));
+      const current = this.getCurrentId();
+      if (current === id) {
+        const fallback = nextList.sort((a,b)=>b.updatedAt-a.updatedAt)[0];
+        if (fallback) { this.setCurrentId(fallback.id); } else { const nm = new Date().toLocaleString(); const meta = this.createGame(nm); this.setCurrentId(meta.id); }
+      }
+    }
+  };
+  const [gameName, setGameName] = useState<string>('');
+  useEffect(() => {
+    let id = storage.getCurrentId();
+    if (!id) { const name = new Date().toLocaleString(); const meta = storage.createGame(name); id = meta.id; }
+    const meta = storage.getGames().find(g=>g.id===id);
+    setGameName(meta?.name || new Date().toLocaleString());
+  }, []);
+  const recentGames = useMemo(() => {
+    try { return storage.getGames().sort((a,b)=>b.updatedAt-a.updatedAt).slice(0,10); } catch { return [] as GameMeta[]; }
+  }, [gamesVersion]);
+  const startNewGame = () => {
+    const meta = storage.createGame(new Date().toLocaleString());
+    setGameName(meta.name); setGamesVersion(v=>v+1);
+    navigate('/tracker');
+  };
+  const loadGame = (id: string) => {
+    storage.setCurrentId(id); setGamesVersion(v=>v+1); navigate('/tracker');
+  };
   const rows = [3,4,5,4,3];
   const numberOrder = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
 
@@ -161,8 +219,23 @@ const Home: React.FC = () => {
         </div>
 
         {/* Board container */}
-        <div className="w-full p-4 relative overflow-hidden">
-          <CatanBoard board={board} />
+        <div className="w-full p-4 relative overflow-hidden h-[500px] sm:h-[600px] md:h-[640px]">
+          <Iridescence color={[100, 200, 255]} className='absolute inset-0' />
+          <LiquidGlassCard distortion={0.5} thickness={0.5}
+            className="pointer-events-none absolute inset-[-2rem]"
+            style={{ zIndex: 0, width: 'calc(100% + 4rem)', height: 'calc(100% + 4rem)', borderRadius: '0rem' }}
+          >
+            <div />
+          </LiquidGlassCard>
+          <div className="absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[460px] sm:h-[560px] md:h-[600px]" style={{ 
+            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+            background: 'rgba(255, 255, 255, 0.2)',
+            filter: 'drop-shadow(0 8px 32px rgba(0, 0, 0, 0.15)) blur(2px)',
+            aspectRatio: '0.86/1',
+           }}/>
+          <div className="absolute z-[2] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <CatanBoard board={board} />
+          </div>
         </div>
 
         {/* Actions */}
@@ -223,7 +296,7 @@ const Home: React.FC = () => {
       const recalc = () => {
         const w = el.clientWidth || containerWidth;
         const z = Math.min(1, w / containerWidth);
-        setContainerZoom(z);
+        setContainerZoom(z*1.1);
       };
 
       recalc();
@@ -240,34 +313,10 @@ const Home: React.FC = () => {
     }, [board, containerWidth]);
 
     return (
-      <div className="w-full h-full flex items-start justify-center pt-2 select-none" id="catan-map-container" ref={wrapperRef}>
-        <div className="relative" style={{ width: containerWidth, height: containerHeight + 45, zoom: `${containerZoom}` }}>
-          {/* Water background as a large hex behind tiles */}
-          <Iridescence color={[100, 200, 255]} className='absolute inset-0' style={{ transform: 'rotate(90deg) scale(1.5)' }} />
-          <LiquidGlassCard distortion={1} thickness={1} 
-            className="absolute"
-            style={{
-              left: '-20rem',
-              top: '-2rem',
-              zIndex: '0',
-              height: 'calc(100% + 4rem)',
-              width: 'calc(100% + 40rem)',
-              borderRadius: '0rem',
-            }}
-          >
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: containerWidth + 24,
-              height: containerHeight + 48,
-              // Pointy (vertical) big board water background
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-              zIndex: 0,
-              background: 'rgba(255, 255, 255, 0.2)',
-              filter: 'drop-shadow(0 8px 32px rgba(0, 0, 0, 0.15)) blur(2px)',
-            }} />
-          </LiquidGlassCard>
- 
+      <div className="relative w-full h-[420px] sm:h-[520px] md:h-[560px] select-none" id="catan-map-container" ref={wrapperRef}>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{ width: containerWidth, height: containerHeight + 45, transform: `scale(${containerZoom})`, transformOrigin: 'center' }}>
+          {/* Tile field centered inside the scaled box */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: containerWidth, height: containerHeight }}>
           {(() => {
             // Build columns from the row-shaped board using absolute column index
@@ -348,12 +397,12 @@ const Home: React.FC = () => {
               <span className="bg-gradient-to-r from-[#CF9EFF] via-[#A071FF] to-[#CF9EFF] bg-clip-text text-transparent animate-gradient">Dice</span>
               <span className="text-white">&nbsp;Tracker</span>
             </span>
-            <button aria-label="Options" className="p-2 relative">
+            <button aria-label="Options" className="p-2 relative" onClick={() => setMenuOpen(true)}>
               <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.15)', backgroundBlendMode: 'overlay', backdropFilter: 'blur(20px)', boxShadow: '-1px -1px 0px 0px rgb(7, 251, 211), 0px -1px 0px 0px rgb(7, 251, 211)' }} >
               <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <circle cx="12" cy="6" r="1.6" />
-                <circle cx="12" cy="12" r="1.6" />
-                <circle cx="12" cy="18" r="1.6" />
+                <rect x="4" y="6" width="16" height="2" rx="1" />
+                <rect x="4" y="11" width="16" height="2" rx="1" />
+                <rect x="4" y="16" width="16" height="2" rx="1" />
               </svg>
             </div>
             </button>
@@ -414,6 +463,66 @@ const Home: React.FC = () => {
           </div>
 
 
+        </div>
+        {/* Right Sidebar Drawer */}
+        <div className={`fixed inset-0 z-[60] transition-opacity ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setMenuOpen(false)} aria-hidden={!menuOpen} />
+        <div className={`fixed right-0 top-0 bottom-0 z-[61] w-[320px] max-w-[85vw] bg-gradient-to-b from-[#1B0F3E] to-[#120A28] border-l border-white/10 transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true">
+          <div className="h-full flex flex-col">
+            <div className="p-5 border-b border-white/10 flex items-center gap-3">
+              <svg className="w-10 h-10 text-white" viewBox="0 0 100 100" aria-hidden>
+                <defs>
+                  <mask id="pips-mask-settings-home">
+                    <rect x="0" y="0" width="100" height="100" fill="white" />
+                    <circle cx="25" cy="25" r="9" fill="black" />
+                    <circle cx="75" cy="25" r="9" fill="black" />
+                    <circle cx="50" cy="50" r="9" fill="black" />
+                    <circle cx="25" cy="75" r="9" fill="black" />
+                    <circle cx="75" cy="75" r="9" fill="black" />
+                  </mask>
+                </defs>
+                <rect x="8" y="8" width="84" height="84" rx="12" fill="currentColor" mask="url(#pips-mask-settings-home)" />
+                <rect x="8" y="8" width="84" height="84" rx="12" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="4" />
+              </svg>
+              <div className="text-lg font-semibold">Dice <span className="text-white/80">Tracker</span></div>
+              <button className="ml-auto p-2" aria-label="Close" onClick={() => setMenuOpen(false)}>
+                <svg className="w-5 h-5 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-5 space-y-4 text-sm flex-1 flex flex-col min-h-0">
+              <div className="text-white/70">Current game</div>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white/90 flex-1 truncate">{gameName}</div>
+                <button aria-label="Rename game" className="h-9 w-9 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center" onClick={() => {
+                  const name = prompt('Rename current game', gameName || ''); if (name && name.trim()) { setGameName(name.trim()); const id = storage.getCurrentId(); if (id) { storage.renameGame(id, name.trim()); setGamesVersion(v=>v+1);} }
+                }}>
+                  <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                </button>
+              </div>
+              <div className="pt-2">
+                <button onClick={startNewGame} className="w-full h-10 rounded-md border border-white/15 bg-white/10 hover:bg-white/15 text-white text-sm" style={{ boxShadow: '-1px -1px 0px 0px rgb(255, 83, 192), 0px -1px 0px 0px rgb(255, 83, 192)' }}>New game</button>
+              </div>
+              <div className="mt-4 flex-1 flex flex-col min-h-0">
+                <div className="text-white/70 mb-2">Load game</div>
+                <div className="space-y-2 flex-1 overflow-auto pr-1 min-h-0">
+                  {recentGames.map(g => (
+                    <div key={g.id} className="w-full rounded-md border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-2 flex items-center gap-2">
+                      <button onClick={() => loadGame(g.id)} className="flex-1 text-left">
+                        <div className="text-white/90 truncate">{g.name}</div>
+                        <div className="text-[10px] text-white/60">{new Date(g.updatedAt).toLocaleString()}</div>
+                      </button>
+                      <button aria-label="Rename game" className="h-8 w-8 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center" onClick={() => { const name = prompt('Rename game', g.name); if (name && name.trim()) { storage.renameGame(g.id, name.trim()); if (storage.getCurrentId()===g.id) setGameName(name.trim()); setGamesVersion(v=>v+1);} }}>
+                        <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                      </button>
+                      <button aria-label="Delete game" className="h-8 w-8 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center" onClick={() => { if (confirm('Delete this game permanently?')) { storage.deleteGame(g.id); setGamesVersion(v=>v+1); const cur = storage.getCurrentId(); if (cur) { /* stay here */ } else { const list = storage.getGames().sort((a,b)=>b.updatedAt-a.updatedAt); const next = list[0]; if (next) { storage.setCurrentId(next.id); setGameName(next.name);} else { const meta = storage.createGame(new Date().toLocaleString()); setGameName(meta.name);} } } }}>
+                        <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                  {recentGames.length === 0 && (<div className="text-xs text-white/60">No saved games yet</div>)}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
     </div>
   );

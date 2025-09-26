@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LiquidGlassCard from '../components/LiquidGlassCard';
 import Iridescence from '../components/Iridescence.tsx';
 import DecryptedText from '../components/DecryptedText.tsx';
@@ -7,6 +8,11 @@ const Splash: React.FC = () => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   // removed unused impactAnchor logic
+  const navigate = useNavigate();
+  useEffect(() => {
+    const id = setTimeout(() => navigate('/start'), 5000);
+    return () => clearTimeout(id);
+  }, [navigate]);
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2E1371] to-black text-white relative overflow-hidden">

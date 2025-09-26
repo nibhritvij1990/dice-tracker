@@ -9,8 +9,6 @@ const Start: React.FC = () => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
   const [impactAnchor, setImpactAnchor] = useState<{ x: number; y: number } | null>(null);
-  const [wrapperHeight, setWrapperHeight] = useState<number>(0);
-  const [targetHeight, setTargetHeight] = useState<number>(0);
 
   useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
@@ -26,8 +24,6 @@ const Start: React.FC = () => {
       const x = Math.round(2*(tr.left + tr.width / 2 - wr.left));
       const y = Math.round(2*(tr.top - wr.top)); // top edge of target box
       setImpactAnchor({ x, y });
-      setWrapperHeight(wr.height);
-      setTargetHeight(tr.height);
       });
     };
 
@@ -57,7 +53,7 @@ const Start: React.FC = () => {
               verticalBeamOffset={0.0}
               verticalSizing={16}
               horizontalSizing={2.5}
-              flowSpeed={0.25}
+              flowSpeed={0.5}
               flowStrength={1}
               decay={2}
               falloffStart={10}
@@ -72,7 +68,7 @@ const Start: React.FC = () => {
               baseFlatten={0.1}
               impactAnchorPx={impactAnchor}
               coreThicknessPx={100}
-              coreHeightPx={Math.max(window.innerHeight)}
+              coreHeightPx={window.innerHeight}
               
             />)}
           </div>
