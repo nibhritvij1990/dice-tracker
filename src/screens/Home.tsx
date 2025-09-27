@@ -80,7 +80,7 @@ const Home: React.FC = () => {
   const columns5 = [4,5,6,5,4]; // heights per column (flat-top columns)
   const numberOrder5 = [2,5,4,6,3,9,8,11,11,10,6,3,8,4,8,10,11,12,10,5,4,9,5];
   const spiral5: Array<[number, number]> = [
-    [0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[4,3],[3,4],[2,5],[1,4],[0,3],[0,2],[0,1],[1,1],[2,1],[3,1],[3,2],[3,3],[2,4],[1,3],[1,2],[2,2],[2,3]
+    [0,3],[0,2],[0,1],[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[4,3],[3,4],[2,5],[1,4],[1,3],[1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,4],[2,3],[2,2]
   ];
 
   // 6-player specs
@@ -321,7 +321,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Board container */}
-        <div className="w-full p-4 relative overflow-hidden" style={{ height: (players===5 ? '720px' : '600px') }}>
+        <div className="w-full p-4 relative overflow-hidden" style={{ height: (players===5 ? '720px' : (players===6 ? '660px' : '600px')) }}>
           <Iridescence color={[100, 200, 255]} className='absolute inset-0' />
           <LiquidGlassCard distortion={0.5} thickness={0.5}
             className="pointer-events-none absolute"
@@ -332,7 +332,7 @@ const Home: React.FC = () => {
           <div className="absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ 
             height: (players===6 ? 'calc(100% - 30px)' : 'calc(100% - 120px)'),
             width: 'auto',
-            aspectRatio: (players===5 ? '0.78 / 1' : '0.866 / 1'),
+            aspectRatio: (players===5 ? '0.78 / 1' : (players===6 ? '0.9 / 1' : '0.866 / 1')),
             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
             background: 'rgba(255, 255, 255, 0.2)',
             filter: 'drop-shadow(0 2px 2px rgba(200, 200, 200, 0.5)) blur(2px)'
